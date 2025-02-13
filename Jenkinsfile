@@ -27,14 +27,12 @@ pipeline {
                 bat 'npm run dev'
             }
         }
+        stage('Starting Server') {
+            steps {
+                echo 'Server started at http://localhost:5173'
+            }
+        }
     }
 
-    post {
-        success {
-            echo '🎉 React.js Vite app built and served successfully!'
-        }
-        failure {
-            echo '❌ Build failed. Check the logs for details.'
-        }
-    }
+    
 }
