@@ -1,12 +1,9 @@
 pipeline {
     agent any
 
-    tools {
-        nodejs 'node' // Ensure the Node.js name matches your Jenkins config
-    }
-
     environment {
-        CI = 'false'  // Prevent Vite build warnings about CI environments
+        NETLIFY_AUTH_TOKEN = credentials('NETLIFY_API_TOKEN') 
+        NETLIFY_SITE_ID = 'b4ab85eb-6648-4056-bbe5-ddb5f2b80445'
     }
 
     stages {
@@ -22,17 +19,27 @@ pipeline {
             }
         }
 
-        stage('Run Dev Server') {
+        stage('Build React App') {
             steps {
-                bat 'npm run dev'
+                bat 'npm run build'
             }
         }
-        stage('Starting Server') {
+
+        stage('Deploy to Netlify') {
             steps {
-                echo 'Server started at http://localhost:5173'
+                bat '''
+                npm install netlify-cli -g
+                netlify deploy --prod --auth $NETLIFY_AUTH_TOKEN --site $NETLIFY_SITE_ID --dir build
+                '''
             }
         }
     }
-
-    
+     post {
+        success {
+                echo "Deployment Succesfull"
+        }
+        failure {
+                echo 'Deployment Failed'
+        }
+    }
 }
